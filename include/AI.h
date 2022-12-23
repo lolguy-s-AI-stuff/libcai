@@ -11,12 +11,7 @@ struct AI
 	3, 4, 1
     };
 
-    unsigned int data_points = 3;
-    unsigned char traindata[3][4]{
-        {255,0,0,255},
-        {0,255,0,32},
-        {0,0,255,8}
-    };
+
 
     unsigned char weights[LAYER_COUNT][LAYER_DEPTH][LAYER_DEPTH]{
     	{{255, 0, 0, 0}, {255, 0, 0, 0}, {255, 0, 0, 0}, {0, 0, 0, 0}},
@@ -32,7 +27,7 @@ struct AI
     unsigned char tmp[4]{0, 0, 0, 0};
     unsigned char curr[4]{0, 0, 0, 0};
     unsigned char* run(unsigned char* input);
-    void train();
+    void train(unsigned int data_points,unsigned char** traindata);
     void save(FILE* file);
     void load(FILE* file);
 };

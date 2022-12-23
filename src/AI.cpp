@@ -68,85 +68,62 @@ unsigned char input[3]{0, 0, 0};
 unsigned char *output;
 int training_number = 1;
 int lastcost = 0;
+short cost = 0;
 int it = 1;
-void AI::train()
-{
+bool test(unsigned int data_points,unsigned char** traindata,AI self){
 	for (size_t i = 0; i < 3; i++)
 	{
-		input[i] = traindata[(training_number % 3) - 1][i];
+		input[i] = traindata[(training_number % 3)][i];
 	}
-	output = run(input);
-	printf("Iteration %i:", it);
 
-	short cost = costfunc( traindata[(training_number % 3) - 1][3],output[0]);
+	output = self.run(input);
+
+	cost = costfunc( traindata[(training_number % 3) - 1][3],output[0]);
+
 	if (lastcost == 0)
 		lastcost = cost;
-	if (cost > lastcost)
+
+	if(!(cost > lastcost))
+		lastcost = cost;
+
+	return (cost > lastcost);
+
+}
+void AI::train(unsigned int data_points,unsigned char** traindata){
+
+	printf("Iteration %i:", it);
+
+	for (size_t i = 0; i < 2; i++)
 	{
-		for (size_t i = 0; i < 2; i++)
+		for (size_t j = 0; j < 4; j++)
 		{
-			for (size_t j = 0; j < 4; j++)
+			for (size_t k = 0; k < 4; k++)
 			{
-				for (size_t k = 0; k < 4; k++)
-				{
+				lastweights[i][j][k] = weights[i][j][k];
+				weights[i][j][k] += (rand() % 4) - 2;
+				if(test(data_points,traindata,*this)){
 					weights[i][j][k] = lastweights[i][j][k];
 				}
 			}
 		}
-		for (size_t i = 0; i < 2; i++)
+	}
+	for (size_t i = 0; i < 2; i++)
+	{
+		for (size_t j = 0; j < 4; j++)
 		{
-			for (size_t j = 0; j < 4; j++)
-			{
+			lastbiases[i][j] = biases[i][j];
+			biases[i][j] += (rand() % 4) - 2;
+			if(test(data_points,traindata,*this)){
 				biases[i][j] = lastbiases[i][j];
 			}
 		}
-		it++;
-		goto CONCLUSION;
 	}
-	else
-	{
-		for (size_t i = 0; i < 2; i++)
-		{
-			for (size_t j = 0; j < 4; j++)
-			{
-				for (size_t k = 0; k < 4; k++)
-				{
-					lastweights[i][j][k] = weights[i][j][k];
-				}
-			}
-		}
-		for (size_t i = 0; i < 2; i++)
-		{
-			for (size_t j = 0; j < 4; j++)
-			{
-				for (size_t k = 0; k < 4; k++)
-				{
-					weights[i][j][k] += (rand() % 4) - 2;
-				}
-			}
-		}
-		for (size_t i = 0; i < 2; i++)
-		{
-			for (size_t j = 0; j < 4; j++)
-			{
-				lastbiases[i][j] = biases[i][j];
-			}
-		}
-		for (size_t i = 0; i < 2; i++)
-		{
-			for (size_t j = 0; j < 4; j++)
-			{
-					biases[i][j] += (rand() % 4) - 2;
-			}
-		}
-		lastcost = cost;
-		printf("training number: %i,\n cost: %i\n", training_number, cost);
-		it++;
-		goto CONCLUSION;
-	}
-	CONCLUSION:
-	if(it >= 3){// protect from the devil xD
-		if (cost == 0){
+
+	printf("training number: %i,\n cost: %i\n", training_number, cost);	
+	it++;
+
+	if(it >= 3){
+		if (cost <= 5){
 			training = false;
 		}
 		training_number++;
