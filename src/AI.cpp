@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <AI/AI.h>
+#include <AI.h>
 #include <random>
 #include <chrono>
 short activation_function(short inp){
