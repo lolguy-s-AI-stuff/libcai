@@ -4,17 +4,18 @@ namespace CAI
 {
     namespace MLP
     {
-    struct MlpData{//data like topology, weights and biases, activation functions, and temporary neuron values
+    struct MlpData{//data like topology, weights and biases, activation functions, and the number of layers
         int num_layers;
         int *topology;
         double **weights;
         double **biases;
         int activation_function;
-        double **neuron_values;
     }
        
    
     void Run(const char* input,MlpData model,const char* out_to_here,int num_inputs){
+        double **neuron_values;
+        toreturn.neuron_values = malloc(sizeof(double*)*model.num_layers);
         //1. check if the input is the right length
         if (num_inputs != model.topology[0]){
             printf("Error: input length is not the same as the first layer's length\n");
@@ -24,6 +25,8 @@ namespace CAI
         //2. loop trough the layers and calculate the neurons, and store them in neuron_values
         for (size_t i = 0; i < model.num_layers; i++)
         {
+            neuron_values[i] = malloc(sizeof(double)*model.topology[i]);
+
             for (size_t j = 0; j < model.topology[i]; j++)
             {
 
@@ -44,12 +47,14 @@ namespace CAI
             }
         }
          
-
+        //3. copy the output to out_to_here
         for (size_t i = 0; i < model.topology[model.num_layers-1]; i++)
         {
             out_to_here[i] = model.neuron_values[model.num_layers-1][i];
         }
         
+        //4. free shit
+        free(tofree.neuron_values);
     }       
 
     MlpData CreateEmpty(int num_layers,int *topology){//create an MlpData struct with all zeroes as weights and biases
@@ -58,13 +63,12 @@ namespace CAI
         toreturn.topology = topology;
         toreturn.weights = malloc(sizeof(double*)*num_layers);
         toreturn.biases = malloc(sizeof(double*)*num_layers);
-        toreturn.activation_functions = malloc(sizeof(int)*num_layers);
-        toreturn.neuron_values = malloc(sizeof(double*)*num_layers);
+        toreturn.activation_functions = malloc(sizeof(int)*num_layers)
         for (size_t i = 0; i < num_layers; i++)
         {
             toreturn.weights[i] = malloc(sizeof(double)*topology[i]*topology[i+1]);
             toreturn.biases[i] = malloc(sizeof(double)*topology[i+1]);
-            toreturn.neuron_values[i] = malloc(sizeof(double)*topology[i]);
+            
             for (size_t j = 0; j < topology[i]*topology[i+1]; j++)
             {
                 toreturn.weights[i][j] = 0;
@@ -72,10 +76,6 @@ namespace CAI
             for (size_t j = 0; j < topology[i+1]; j++)
             {
                 toreturn.biases[i][j] = 0;
-            }
-            for (size_t j = 0; j < topology[i]; j++)
-            {
-                toreturn.neuron_values[i][j] = 0;
             }
         }
         return toreturn;
@@ -110,7 +110,6 @@ namespace CAI
         }
         free(tofree.weights);
         free(tofree.biases);
-        free(tofree.neuron_values);
         free(tofree.activation_functions);
         free(tofree.topology);
 
