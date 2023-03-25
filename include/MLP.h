@@ -29,6 +29,34 @@ namespace CAI
     MlpData CreateEmpty(int num_layers,int *topology);
 
     /**
+     * @brief Create a MlpData with random weights and biases
+     * @param num_layers number of layers
+     * @param topology array of int containing the number of neurons in each layer
+     * @return a MlpData with random weights and biases
+     */
+    MlpData CreateRandom(int num_layers,int *topology);
+
+    /**
+     * @brief Create a MlpData from a file
+     * @param filename The name of the file
+     * @param num_layers number of layers
+     * @param topology array of int containing the number of neurons in each layer
+     * @return a MlpData
+     * @warning The file must be in the correct format
+     */
+    MlpData CreateFromFile(const char* filename,int num_layers,int *topology);
+
+    /**
+     * @brief Save the MlpData to a file
+     * @param filename The name of the file
+     * @param model The model
+     * @param num_layers number of layers
+     * @param topology array of int containing the number of neurons in each layer
+     * @warning The file must not exist
+    */
+    void SaveToFile(const char* filename,MlpData model,int num_layers,int *topology);
+
+    /**
      * @brief Edit a weight of the MlpData
      * @param model the MlpData to edit
      * @param layer the layer of the weight

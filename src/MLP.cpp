@@ -40,9 +40,9 @@ namespace CAI
                     {
                         sum += model.neuron_values[i-1][k]*model.weights[i][k*model.topology[i]+j];
                     }
+                    // put the result trough the provided activation function and store it as this neuron's value
                     model.neuron_values[i][j] = CAI::ActivationFunction(sum + model.biases[i][j],model.activation_function);
                 }
-                // put the result trough the provided activation function and store it as this neuron's value
             
             }
         }
@@ -80,6 +80,86 @@ namespace CAI
         }
         return toreturn;
     }
+        /**
+     * @brief Create a MlpData with random weights and biases
+     * @param num_layers number of layers
+     * @param topology array of int containing the number of neurons in each layer
+     * @return a MlpData with random weights and biases
+     */
+    MlpData CreateRandom(int num_layers,int *topology){
+        MlpData toreturn;
+        toreturn.num_layers = num_layers;
+        toreturn.topology = topology;
+        toreturn.weights = malloc(sizeof(double*)*num_layers);
+        toreturn.biases = malloc(sizeof(double*)*num_layers);
+        toreturn.activation_functions = malloc(sizeof(int)*num_layers)
+        for (size_t i = 0; i < num_layers; i++)
+        {
+            toreturn.weights[i] = malloc(sizeof(double)*topology[i]*topology[i+1]);
+            toreturn.biases[i] = malloc(sizeof(double)*topology[i+1]);
+            
+            for (size_t j = 0; j < topology[i]*topology[i+1]; j++)
+            {
+                toreturn.weights[i][j] = rand()%10 / 10.0;
+            }
+            for (size_t j = 0; j < topology[i+1]; j++)
+            {
+                toreturn.biases[i][j] = rand()%10 / 10.0;
+            }
+        }
+        return toreturn;
+    }
+
+    MlpData CreateFromFile(const char* filename,int num_layers,int *topology){
+        MlpData toreturn;
+        toreturn.num_layers = num_layers;
+        toreturn.topology = topology;
+        toreturn.weights = malloc(sizeof(double*)*num_layers);
+        toreturn.biases = malloc(sizeof(double*)*num_layers);
+        toreturn.activation_functions = malloc(sizeof(int)*num_layers)
+        FILE *file = fopen(filename,"r");
+        if (file == NULL){
+            printf("Error: file could not be opened\n");
+            return toreturn;
+        }
+        for (size_t i = 0; i < num_layers; i++)
+        {
+            toreturn.weights[i] = malloc(sizeof(double)*topology[i]*topology[i+1]);
+            toreturn.biases[i] = malloc(sizeof(double)*topology[i+1]);
+            
+            for (size_t j = 0; j < topology[i]*topology[i+1]; j++)
+            {
+                fscanf(file,"%lf",&toreturn.weights[i][j]);
+            }
+            for (size_t j = 0; j < topology[i+1]; j++)
+            {
+                fscanf(file,"%lf",&toreturn.biases[i][j]);
+            }
+        }
+        fclose(file);
+        return toreturn;
+    }
+    void SaveToFile(const char* filename,MlpData model,int num_layers,int *topology){
+        FILE *file = fopen(filename,"w");
+        if (file == NULL){
+            printf("Error: file could not be opened\n");
+            return;
+        }
+        for (size_t i = 0; i < num_layers; i++)
+        {
+            fprintf(file,"%d\n",topology[i]);
+            for (size_t j = 0; j < topology[i]*topology[i+1]; j++)
+            {
+                fprintf(file,"%lf\n",model.weights[i][j]);
+            }
+            for (size_t j = 0; j < topology[i+1]; j++)
+            {
+                fprintf(file,"%lf\n",model.biases[i][j]);
+            }
+        }
+        fclose(file);
+    }
+
     void EditWeight(MlpData model, int layer,int address,int value){//edit a weight,but only if its in bounds to prevent buffer overflows
 
     //1. check if the weight is in bounds
